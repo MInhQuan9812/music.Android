@@ -1,4 +1,5 @@
 package com.example.deannhom;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,6 +9,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import java.util.regex.Pattern;
 
 public class SignInActivity extends AppCompatActivity {
 
@@ -30,37 +33,59 @@ public class SignInActivity extends AppCompatActivity {
         // Get reference to SharedPreferences
         mSharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
 
-        // Check if user is already logged in
-        if (mSharedPreferences.getBoolean("loggedIn", false)) {
-            // If already logged in, go to main activity
-            startActivity(new Intent(SignInActivity.this, HomeActivity.class));
-            finish();
-        }
-
         // Set click listener for sign in button
         mSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Get user input
-                String email = mEmailEditText.getText().toString();
-                String password = mPasswordEditText.getText().toString();
+                String email = mEmailEditText.getText().toString().trim();
+                String password = mPasswordEditText.getText().toString().trim();
 
                 // Check if input is valid
-                if (email.isEmpty() || password.isEmpty()) {
-                    Toast.makeText(SignInActivity.this, "Please enter email and password", Toast.LENGTH_SHORT).show();
-                } else if (!email.equals("example@gmail.com") || !password.equals("password123")) {
-                    Toast.makeText(SignInActivity.this, "Incorrect email or password", Toast.LENGTH_SHORT).show();
-                } else {
-                    // If input is valid, save login information and go to main activity
-                    SharedPreferences.Editor editor = mSharedPreferences.edit();
-                    editor.putBoolean("loggedIn", true);
-                    editor.putString("email", email);
-                    editor.apply();
+                if (!isValidEmail(email)) {
+                    Toast.makeText(SignInActivity.this, "Invalid email address", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (!isValidPassword(password)) {
+                    Toast.makeText(SignInActivity.this, "Invalid password", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-                    startActivity(new Intent(SignInActivity.this, HomeActivity.class));
-                    finish();
+                // Check if email and password match saved information
+                String savedEmail = mSharedPreferences.getString("email", "");
+                String savedPassword = mSharedPreferences.getString("password", "");
+
+                if (email.equals(savedEmail) && password.equals(savedPassword)) {
+                    // If the email and password are valid, do the login here
+                    Toast.makeText(SignInActivity.this, "Login successful!", Toast.LENGTH_SHORT).show();
+
+                    Intent intent = new Intent(SignInActivity.this, HomeActivity.class);
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(SignInActivity.this, "Incorrect email or password", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+    }
+
+    private boolean isValidEmail(String email) {
+        if (email.isEmpty()) {
+            return false;
+        } else {
+            return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+        }
+    }
+
+    private boolean isValidPassword(String password) {
+        if (password.isEmpty()) {
+            return false;
+        } else {
+            // Define password pattern
+            String PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$";
+            Pattern pattern = Pattern.compile(PASSWORD_PATTERN);
+
+            // Check if password matches pattern
+            return pattern.matcher(password).matches();
+        }
     }
 }

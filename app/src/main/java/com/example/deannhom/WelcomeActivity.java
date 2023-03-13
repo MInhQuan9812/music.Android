@@ -1,5 +1,6 @@
 package com.example.deannhom;
-
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,7 +11,7 @@ import android.content.Intent;
 public class WelcomeActivity extends AppCompatActivity {
 
     private View background;
-
+    private SharedPreferences mSharedPreferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,8 +30,13 @@ public class WelcomeActivity extends AppCompatActivity {
 
         Button loginButton = findViewById(R.id.signInBtn);
         Button registerButton = findViewById(R.id.signUpBtn);
+        mSharedPreferences = getSharedPreferences("MyPrefs",Context.MODE_PRIVATE);
 
-
+        // if (mSharedPreferences.getBoolean("loggedIn", false)) {
+        // ĐỪNG UNCOMMENT NÓ, LOGOUT VỚI DELETE ACCOUNT KHÔNG HOẠT ĐỘNG
+        //    startActivity(new Intent(WelcomeActivity.this, HomeActivity.class));
+       //     finish();
+      //  }
 
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override

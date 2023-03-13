@@ -1,7 +1,10 @@
 package com.example.deannhom;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
+import java.util.regex.Pattern;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -43,13 +46,20 @@ public class SignUpActivity extends AppCompatActivity {
                 String password = mPasswordEditText.getText().toString();
                 String confirmPassword = mConfirmPasswordEditText.getText().toString();
 
+
                 // Check if input is valid
-                if (fullName.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+                if (TextUtils.isEmpty(fullName) || TextUtils.isEmpty(email) || TextUtils.isEmpty(password) || TextUtils.isEmpty(confirmPassword)) {
                     Toast.makeText(SignUpActivity.this, "Please enter all required information", Toast.LENGTH_SHORT).show();
+                } else if (password.length() < 10) {
+                    Toast.makeText(SignUpActivity.this, "Password must be at least 10 characters long", Toast.LENGTH_SHORT).show();
+                } else if (!isValidEmail(email)) {
+                    Toast.makeText(SignUpActivity.this, "Please enter a valid email address", Toast.LENGTH_SHORT).show();
                 } else if (!password.equals(confirmPassword)) {
                     Toast.makeText(SignUpActivity.this, "Passwords do not match", Toast.LENGTH_SHORT).show();
                 } else {
-                    // If input is valid, save sign-up information and go to main activity
+
+
+                    // If input is valid, save sign-up information and go to home activity
                     SharedPreferences.Editor editor = mSharedPreferences.edit();
                     editor.putString("fullName", fullName);
                     editor.putString("email", email);
@@ -61,5 +71,12 @@ public class SignUpActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private boolean isValidEmail(String email) {
+        // Regular expression for email validation
+        String regex = "^[\\w\\.-]+@([\\w\\-]+\\.)+[A-Z]{2,4}$";
+        Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+        return pattern.matcher(email).matches();
     }
 }
